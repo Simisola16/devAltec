@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 160 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" />
+      <stop offset="45%" stop-color="#0066ff" />
+      <stop offset="100%" stop-color="#2563eb" />
+    </linearGradient>
+    <linearGradient id="innerGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0055ff" />
+      <stop offset="100%" stop-color="#00e5ff" />
+    </linearGradient>
+  </defs>
+  <rect width="160" height="140" rx="28" fill="#07090e" />
+  <path d="M 50 18 L 8 116 L 26 116 L 50 60 L 74 116 L 94 116 L 50 18 Z" fill="#FFFFFF" />
+  <polygon points="36,92 50,60 64,92" fill="url(#innerGrad)" />
+  <path d="M 58 18 L 102 18 C 132 18 152 40 152 70 C 152 100 132 122 102 122 L 76 122 L 67 102 L 98 102 C 117 102 130 89 130 70 C 130 51 117 38 98 38 L 68 38 Z" fill="url(#blueGrad)" />
+</svg>
