@@ -122,14 +122,14 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="en" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
       <head>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-full flex flex-col bg-[#07090e] text-slate-100 bg-cyber-grid selection:bg-cyan-500/25 selection:text-cyan-200">
+      <body suppressHydrationWarning className="min-h-full flex flex-col bg-[#07090e] text-slate-100 bg-cyber-grid selection:bg-cyan-500/25 selection:text-cyan-200">
         <VisitorTracker />
         <Navbar />
         <main className="flex-1 pt-20">{children}</main>

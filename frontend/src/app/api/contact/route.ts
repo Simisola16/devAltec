@@ -33,15 +33,40 @@ export async function POST(request: Request) {
       description: description.trim()
     };
 
-    // Log the genuine inquiry on the server
-    console.log('[devAltec Contact Inquiry Received]:', inquiryRecord);
+    const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://localhost:5000';
+    let savedInquiryId = `inq_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    let receivedAt = new Date().toISOString();
+
+    try {
+      const backendRes = await fetch(`${backendUrl}/api/inquiries`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          email: email.trim().toLowerCase(),
+          company: company ? company.trim() : null,
+          projectType: projectType || 'General Full-Stack Project',
+          budget: budget || 'Not specified',
+          timeline: timeline || 'Flexible',
+          description: description.trim(),
+        }),
+      });
+
+      if (backendRes.ok) {
+        const data = await backendRes.json();
+        if (data.inquiryId) savedInquiryId = data.inquiryId;
+        if (data.receivedAt) receivedAt = data.receivedAt;
+      }
+    } catch (backendErr) {
+      console.warn('[Contact Route] Could not sync directly to backend:', (backendErr as Error).message);
+    }
 
     return NextResponse.json(
       {
         success: true,
         message: 'Your inquiry has been successfully received by devAltec.',
-        inquiryId: inquiryRecord.id,
-        receivedAt: inquiryRecord.timestamp
+        inquiryId: savedInquiryId,
+        receivedAt: receivedAt,
       },
       { status: 200 }
     );
