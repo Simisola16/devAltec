@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
+import VisitorTracker from '@/components/VisitorTracker';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -129,6 +130,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col bg-[#07090e] text-slate-100 bg-cyber-grid selection:bg-cyan-500/25 selection:text-cyan-200">
+        <VisitorTracker />
         <Navbar />
         <main className="flex-1 pt-20">{children}</main>
         <Footer />
