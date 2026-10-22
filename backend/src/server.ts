@@ -1,10 +1,14 @@
 import express, { Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
 import dotenv from 'dotenv';
 import { connectDB } from './config/db';
 import trackRoutes from './routes/trackRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
 
+// Resolve .env robustly across working directories
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), 'backend/.env') });
 dotenv.config();
 
 const app = express();
