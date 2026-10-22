@@ -39,6 +39,21 @@ app.use(express.urlencoded({ extended: true }));
 // Trust proxy headers (crucial for accurate visitor IP behind Nginx/Vercel/Render)
 app.set('trust proxy', true);
 
+// Root endpoint
+app.get('/', (_req: Request, res: Response) => {
+  res.json({
+    status: 'online',
+    service: 'devAltec Analytics & Project Intake Engine',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/health',
+      track: '/api/track',
+      analytics: '/api/analytics/summary',
+      inquiries: '/api/inquiries',
+    },
+  });
+});
+
 // Health check
 app.get('/health', (_req: Request, res: Response) => {
   res.json({
@@ -59,8 +74,8 @@ app.use((_req: Request, res: Response) => {
 });
 
 // Start Server
-const server = app.listen(PORT, () => {
-  console.log(`[devAltec Backend] Server running on http://localhost:${PORT}`);
+const server = app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`[devAltec Backend] Server running on http://0.0.0.0:${PORT}`);
   console.log(`[devAltec Backend] MongoDB connected to cluster: devaltecv.zhhbtid.mongodb.net`);
 });
 

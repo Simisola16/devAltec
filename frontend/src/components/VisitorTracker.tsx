@@ -64,7 +64,7 @@ export default function VisitorTracker() {
     }
 
     // Non-blocking track request
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://devaltecbackend.onrender.com';
     
     // Try Next rewrite proxy first, fallback to direct backend URL
     fetch('/api/backend/track', {

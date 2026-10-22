@@ -33,7 +33,10 @@ export async function POST(request: Request) {
       description: description.trim()
     };
 
-    const backendUrl = process.env.BACKEND_INTERNAL_URL || 'http://localhost:5000';
+    const backendUrl =
+      process.env.BACKEND_INTERNAL_URL ||
+      process.env.NEXT_PUBLIC_BACKEND_URL ||
+      'https://devaltecbackend.onrender.com';
     let savedInquiryId = `inq_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     let receivedAt = new Date().toISOString();
 

@@ -134,7 +134,21 @@ function AdminAnalyticsDashboard() {
   const [selectedCountry, setSelectedCountry] = useState<string>('');
   const [selectedDevice, setSelectedDevice] = useState<string>('');
 
-  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://devaltecbackend.onrender.com';
+
+  // Smart backend fetch: routes through Next.js proxy rewrite first, with instant fallback to direct Render backend URL
+  const callBackendApi = useCallback(
+    async (endpoint: string, options: RequestInit = {}) => {
+      try {
+        const res = await fetch(`/api/backend${endpoint}`, options);
+        if (res.ok) return res;
+      } catch {
+        // rewrite failed or unreachable
+      }
+      return fetch(`${backendUrl}/api${endpoint}`, options);
+    },
+    [backendUrl]
+  );
 
   // Verify access key
   const verifyKey = useCallback(
@@ -142,11 +156,9 @@ function AdminAnalyticsDashboard() {
       setIsVerifying(true);
       setAuthError('');
       try {
-        const res = await fetch(`/api/backend/analytics/verify?key=${encodeURIComponent(keyToTest)}`).catch(() =>
-          fetch(`${backendUrl}/api/analytics/verify?key=${encodeURIComponent(keyToTest)}`)
-        );
+        const res = await callBackendApi(`/analytics/verify?key=${encodeURIComponent(keyToTest)}`);
 
-        if (res.ok) {
+        if (res && res.ok) {
           const data = await res.json();
           if (data.success) {
             setAdminKey(keyToTest);
@@ -163,14 +175,14 @@ function AdminAnalyticsDashboard() {
         setIsAuthenticated(false);
         return false;
       } catch {
-        setAuthError('Unable to connect to backend server. Ensure backend is running on port 5000.');
+        setAuthError('Unable to connect to backend server. Please verify backend is running.');
         setIsAuthenticated(false);
         return false;
       } finally {
         setIsVerifying(false);
       }
     },
-    [backendUrl]
+    [callBackendApi]
   );
 
   // Initial authentication check on load
@@ -208,12 +220,8 @@ function AdminAnalyticsDashboard() {
         if (selectedDevice) queryParams.set('device', selectedDevice);
 
         const [statsRes, visitsRes] = await Promise.all([
-          fetch(`/api/backend/analytics/stats?key=${encodeURIComponent(adminKey)}`, { headers }).catch(() =>
-            fetch(`${backendUrl}/api/analytics/stats?key=${encodeURIComponent(adminKey)}`, { headers })
-          ),
-          fetch(`/api/backend/analytics/visits?${queryParams.toString()}`, { headers }).catch(() =>
-            fetch(`${backendUrl}/api/analytics/visits?${queryParams.toString()}`, { headers })
-          ),
+          callBackendApi(`/analytics/stats?key=${encodeURIComponent(adminKey)}`, { headers }),
+          callBackendApi(`/analytics/visits?${queryParams.toString()}`, { headers }),
         ]);
 
         if (statsRes.ok) {
@@ -235,7 +243,7 @@ function AdminAnalyticsDashboard() {
         setLoading(false);
       }
     },
-    [adminKey, backendUrl, searchQuery, selectedCountry, selectedDevice]
+    [adminKey, callBackendApi, searchQuery, selectedCountry, selectedDevice]
   );
 
   // Fetch Inquiries
@@ -249,12 +257,8 @@ function AdminAnalyticsDashboard() {
       if (inquirySearch.trim()) queryParams.set('search', inquirySearch.trim());
 
       const [inqRes, statsRes] = await Promise.all([
-        fetch(`/api/backend/inquiries?${queryParams.toString()}`, { headers }).catch(() =>
-          fetch(`${backendUrl}/api/inquiries?${queryParams.toString()}`, { headers })
-        ),
-        fetch(`/api/backend/inquiries/stats?key=${encodeURIComponent(adminKey)}`, { headers }).catch(() =>
-          fetch(`${backendUrl}/api/inquiries/stats?key=${encodeURIComponent(adminKey)}`, { headers })
-        ),
+        callBackendApi(`/inquiries?${queryParams.toString()}`, { headers }),
+        callBackendApi(`/inquiries/stats?key=${encodeURIComponent(adminKey)}`, { headers }),
       ]);
 
       if (inqRes.ok) {
@@ -271,7 +275,7 @@ function AdminAnalyticsDashboard() {
     } finally {
       setInquiryLoading(false);
     }
-  }, [adminKey, backendUrl, inquiryFilter, inquirySearch]);
+  }, [adminKey, callBackendApi, inquiryFilter, inquirySearch]);
 
   // Trigger loads
   useEffect(() => {
@@ -316,7 +320,7 @@ function AdminAnalyticsDashboard() {
   const handleDeleteVisit = async (visitId: string) => {
     if (!confirm('Are you sure you want to delete this record?')) return;
     try {
-      await fetch(`/api/backend/analytics/visits/${visitId}?key=${encodeURIComponent(adminKey)}`, {
+      await callBackendApi(`/analytics/visits/${visitId}?key=${encodeURIComponent(adminKey)}`, {
         method: 'DELETE',
         headers: { 'x-admin-key': adminKey },
       });
@@ -324,14 +328,14 @@ function AdminAnalyticsDashboard() {
       if (stats) {
         setStats({ ...stats, totalVisits: Math.max(0, stats.totalVisits - 1) });
       }
-    } catch (err) {
+    } catch {
       alert('Failed to delete visit record');
     }
   };
 
   const handleUpdateInquiryStatus = async (id: string, newStatus: string) => {
     try {
-      await fetch(`/api/backend/inquiries/${id}/status?key=${encodeURIComponent(adminKey)}`, {
+      await callBackendApi(`/inquiries/${id}/status?key=${encodeURIComponent(adminKey)}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -351,7 +355,7 @@ function AdminAnalyticsDashboard() {
   const handleDeleteInquiry = async (id: string) => {
     if (!confirm('Are you sure you want to delete this project inquiry?')) return;
     try {
-      await fetch(`/api/backend/inquiries/${id}?key=${encodeURIComponent(adminKey)}`, {
+      await callBackendApi(`/inquiries/${id}?key=${encodeURIComponent(adminKey)}`, {
         method: 'DELETE',
         headers: { 'x-admin-key': adminKey },
       });
